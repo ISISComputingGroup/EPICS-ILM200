@@ -1,18 +1,13 @@
-getIDN {
-    out "*IDN?";
-    in "%\$1[^\r\n]";
-    ExtraInput = Ignore;
+getLevel {
+    out "R\$1";
+    in "%f";
 }
 
-cmd {
-    out "\$1";
+setRate {
+    out "{S|T}\$2";
 }
 
-setD {
-    out "\$1 %d";
-}
-getD {
-    out "\$1?";
-    in "%d";
-    ExtraInput = Ignore;
+getVersion {
+    out "V";
+    in "%s";
 }
