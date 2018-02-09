@@ -1,0 +1,22 @@
+OutTerminator = "\r";
+InTerminator = "\r";
+ReplyTimeout = 2000;
+
+getLevel {
+    out "R\$1";
+    in "%f";
+}
+
+setRate {
+    out "%{S|T}\$1";
+}
+
+getStatus {
+    out "X";
+	in "X%1d%1d%1dS%2d%2d%2dR%2d";
+}
+
+getVersion {
+    out "V";
+    in "%#s";
+}
