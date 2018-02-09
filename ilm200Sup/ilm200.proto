@@ -13,7 +13,7 @@ setRate {
 
 getStatus {
     out "X";
-	in "X%1d%1d%1dS%2d%2d%2dR%2d";
+	in "X%(\$1.A)1d%(\$1.B)1d%(\$1.C)1dS%(\$1.D)2d%(\$1.E)2d%(\$1.F)2dR%(\$1.G)2d";
 }
 
 getVersion {
