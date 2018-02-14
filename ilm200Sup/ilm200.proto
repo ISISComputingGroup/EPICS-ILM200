@@ -4,7 +4,7 @@ ReplyTimeout = 2000;
 
 getLevel {
     out "@\$1R\$2";
-    in "%f";
+    in "R%f";
 }
 
 setRate {
@@ -13,10 +13,10 @@ setRate {
 
 getStatus {
     out "@\$1X";
-	in "X%(\$2.A)1d%(\$2.B)1d%(\$2.C)1dS%(\$2.D)2d%(\$2.E)2d%(\$2.F)2dR%(\$2.G)2d";
+	in "X%(\$2.A)1d%(\$2.B)1d%(\$2.C)1dS%(\$2.D)2x%(\$2.E)2x%(\$2.F)2xR%(\$2.G)2d";
 }
 
 getVersion {
     out "@\$1V";
-    in "%#s";
+    in "V%#s";
 }
