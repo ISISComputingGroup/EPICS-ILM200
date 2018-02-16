@@ -1,0 +1,23 @@
+OutTerminator = "\r";
+InTerminator = "\r";
+ReplyTimeout = 2000;
+
+getLevel {
+    out "@\$1R\$2";
+    in "R%f";
+}
+
+setRate {
+    out "@\$1%{S|T}\$2";
+}
+
+getStatus {
+    out "@\$1C3";  # Keep the system in remote unlocked mode
+    out "@\$1X";
+	in "X%(\$2.A)1d%(\$2.B)1d%(\$2.C)1dS%(\$2.D)2x%(\$2.E)2x%(\$2.F)2xR%(\$2.G)2d";
+}
+
+getVersion {
+    out "@\$1V";
+    in "V%#s";
+}
