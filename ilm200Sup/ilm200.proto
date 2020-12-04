@@ -1,6 +1,10 @@
 OutTerminator = "\r";
 InTerminator = "\r";
-ReplyTimeout = 2000;
+
+ReplyTimeout = 5000;
+ReadTimeout = 5000;
+WriteTimeout = 1000;
+LockTimeout = 30000;
 
 getLevel {
     out "@\$1R\$2";
@@ -13,6 +17,7 @@ setRate {
 
 getStatus {
     out "@\$1C3";  # Keep the system in remote unlocked mode
+    in "C";
     out "@\$1X";
 	in "X%(\$2.A)1d%(\$2.B)1d%(\$2.C)1dS%(\$2.D)2x%(\$2.E)2x%(\$2.F)2xR%(\$2.G)2d";
 }
