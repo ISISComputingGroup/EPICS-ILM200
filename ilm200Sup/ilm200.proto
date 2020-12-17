@@ -1,6 +1,9 @@
 OutTerminator = "\r";
 InTerminator = "\r";
-ReplyTimeout = 2000;
+ReplyTimeout = 5000;
+ReadTimeout = 5000;
+WriteTimeout = 1000;
+LockTimeout = 30000;
 
 getLevel {
     out "@\$1R\$2";
