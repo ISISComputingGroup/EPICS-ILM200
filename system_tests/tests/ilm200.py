@@ -1,7 +1,7 @@
 import unittest
 
 from utils.channel_access import ChannelAccess
-from utils.ioc_launcher import get_default_ioc_dir
+from utils.ioc_launcher import get_default_ioc_dir, ProcServLauncher
 from utils.test_modes import TestModes
 from utils.testing import get_running_lewis_and_ioc, skip_if_recsim
 
@@ -24,6 +24,7 @@ IOCS = [
             "CH3_ALARM_THRESHOLD": ALARM_THRESHOLDS[3],
         },
         "emulator": "ilm200",
+        "ioc_launcher_class": ProcServLauncher,
     },
 ]
 
@@ -103,13 +104,21 @@ class Ilm200Tests(unittest.TestCase):
             self.ca.assert_that_pv_is_not(self.ch_pv(i, self.TYPE), "Not in use")
             self.ca.assert_that_pv_alarm_is(self.ch_pv(i, self.TYPE), self.ca.Alarms.NONE)
 
-    @skip_if_recsim("no backdoor in recsim")
-    def test_GIVEN_ilm_200_THEN_can_read_level(self):
+    def set_and_check_level(self):
         for i in self.channel_range():
             level = ALARM_THRESHOLDS[i] + 10
             self.set_level_via_backdoor(i, level)
             self.ca.assert_that_pv_is_number(self.ch_pv(i, self.LEVEL), level, tolerance=0.1)
             self.ca.assert_that_pv_alarm_is(self.ch_pv(i, self.LEVEL), self.ca.Alarms.NONE)
+
+    @skip_if_recsim("no backdoor in recsim")
+    def test_GIVEN_ilm_200_THEN_can_read_level(self):
+        self.set_and_check_level()
+
+    @skip_if_recsim("no backdoor in recsim")
+    def test_GIVEN_ilm_200_non_isobus_THEN_can_read_level(self):
+        with self._ioc.start_with_macros({"USE_ISOBUS": "NO"}, pv_to_wait_for="VERSION"):
+            self.set_and_check_level()
 
     @skip_if_recsim("Cannot do back door of dynamic behaviour in recsim")
     def test_GIVEN_ilm_200_WHEN_level_set_on_device_THEN_reported_level_matches_set_level(self):

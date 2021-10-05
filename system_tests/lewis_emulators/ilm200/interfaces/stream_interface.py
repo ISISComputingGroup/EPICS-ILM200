@@ -17,6 +17,7 @@ class Ilm200StreamInterface(StreamInterface):
             CmdBuilder(Ilm200StreamInterface.get_version).escape("@").int(ignore=True).escape("V").build(),
             CmdBuilder(self.get_status).escape("@").int(ignore=True).escape("X").build(),
             CmdBuilder(self.get_level).escape("@").int(ignore=True).escape("R").int().build(),
+            CmdBuilder(self.get_level_non_isobus).escape("R").int().build(),
             CmdBuilder(self.set_rate_slow).escape("@").int(ignore=True).escape("S").int().build(),
             CmdBuilder(self.set_rate_fast).escape("@").int(ignore=True).escape("T").int().build(),
             CmdBuilder(Ilm200StreamInterface.set_remote_unlocked).escape("@").int(ignore=True).escape("C3").build(),
@@ -44,6 +45,9 @@ class Ilm200StreamInterface(StreamInterface):
 
     def get_level(self, channel):
         return "R{}".format(int(self._device.get_level(channel=int(channel))*10))
+
+    def get_level_non_isobus(self, channel):
+        return self.get_level(channel)
 
     def _get_channel_status(self, channel_number):
         channel = self._device.channels[channel_number]
