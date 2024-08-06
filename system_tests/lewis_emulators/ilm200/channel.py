@@ -1,5 +1,4 @@
 class Channel(object):
-
     NOT_IN_USE = 0
     NITROGEN = 1
     HELIUM = 2

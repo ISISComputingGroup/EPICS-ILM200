@@ -1,33 +1,37 @@
 from collections import OrderedDict
-from .states import DefaultState
-from lewis.devices import StateMachineDevice
+
 from lewis.core.logging import has_log
+from lewis.devices import StateMachineDevice
+
 from .channel import Channel
+from .states import DefaultState
 
 
 @has_log
 class SimulatedIlm200(StateMachineDevice):
-
     LOW_LEVEL = 10.0
 
     def _initialize_data(self):
         """
         Initialize all of the device's attributes.
         """
-        self.channels = {1: Channel(Channel.NITROGEN), 2: Channel(Channel.HELIUM), 3: Channel(Channel.HELIUM_CONT)}
+        self.channels = {
+            1: Channel(Channel.NITROGEN),
+            2: Channel(Channel.HELIUM),
+            3: Channel(Channel.HELIUM_CONT),
+        }
         self.cycle = True  # Whether the device will continuously cycle through fill states
 
     def _get_state_handlers(self):
         return {
-            'default': DefaultState(),
+            "default": DefaultState(),
         }
 
     def _get_initial_state(self):
-        return 'default'
+        return "default"
 
     def _get_transition_handlers(self):
-        return OrderedDict([
-        ])
+        return OrderedDict([])
 
     def get_level(self, channel):
         return self.channels[channel].get_level()
