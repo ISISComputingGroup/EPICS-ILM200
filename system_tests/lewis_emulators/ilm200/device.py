@@ -1,8 +1,10 @@
 from collections import OrderedDict
-from .states import DefaultState
-from lewis.devices import StateMachineDevice
+
 from lewis.core.logging import has_log
+from lewis.devices import StateMachineDevice
+
 from .channel import Channel
+from .states import DefaultState
 
 
 @has_log
