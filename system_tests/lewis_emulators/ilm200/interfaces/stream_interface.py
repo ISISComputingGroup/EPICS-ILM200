@@ -5,22 +5,28 @@ from lewis.utils.command_builder import CmdBuilder
 
 @has_log
 class Ilm200StreamInterface(StreamInterface):
-
     in_terminator = "\r"
     out_terminator = "\r"
 
     def __init__(self):
-
         super(Ilm200StreamInterface, self).__init__()
         # All commands preceded by "@i" where i is the ISOBUS address. Has no impact on emulator so is ignored.
         self.commands = {
-            CmdBuilder(Ilm200StreamInterface.get_version).escape("@").int(ignore=True).escape("V").build(),
+            CmdBuilder(Ilm200StreamInterface.get_version)
+            .escape("@")
+            .int(ignore=True)
+            .escape("V")
+            .build(),
             CmdBuilder(self.get_status).escape("@").int(ignore=True).escape("X").build(),
             CmdBuilder(self.get_level).escape("@").int(ignore=True).escape("R").int().build(),
             CmdBuilder(self.get_level_non_isobus).escape("R").int().build(),
             CmdBuilder(self.set_rate_slow).escape("@").int(ignore=True).escape("S").int().build(),
             CmdBuilder(self.set_rate_fast).escape("@").int(ignore=True).escape("T").int().build(),
-            CmdBuilder(Ilm200StreamInterface.set_remote_unlocked).escape("@").int(ignore=True).escape("C3").build(),
+            CmdBuilder(Ilm200StreamInterface.set_remote_unlocked)
+            .escape("@")
+            .int(ignore=True)
+            .escape("C3")
+            .build(),
         }
 
     def handle_error(self, request, error):
@@ -44,7 +50,7 @@ class Ilm200StreamInterface(StreamInterface):
         return "T"
 
     def get_level(self, channel):
-        return "R{}".format(int(self._device.get_level(channel=int(channel))*10))
+        return "R{}".format(int(self._device.get_level(channel=int(channel)) * 10))
 
     def get_level_non_isobus(self, channel):
         return self.get_level(channel)
@@ -65,7 +71,7 @@ class Ilm200StreamInterface(StreamInterface):
         )
 
         # Construct bitwise return code from the various status bits
-        return sum([int(set_it)*2**bit for bit, set_it in enumerate(bits)])
+        return sum([int(set_it) * 2**bit for bit, set_it in enumerate(bits)])
 
     @staticmethod
     def _get_logic_status():
@@ -74,12 +80,17 @@ class Ilm200StreamInterface(StreamInterface):
     def get_status(self):
         d = self._device
         # "XabcSuuvvwwRxyz" : Described fully in ILM 200 manual section 8.2
-        status_string = "X{ch1_type:01d}{ch2_type:01d}{ch3_type:01d}S{ch1_status:02x}{ch2_status:02x}"\
-                        "{ch3_status:02x}R{logic_status:02d}".format(
-                            ch1_type=d.get_cryo_type(1), ch2_type=d.get_cryo_type(2), ch3_type=d.get_cryo_type(3),
-                            ch1_status=self._get_channel_status(1), ch2_status=self._get_channel_status(2),
-                            ch3_status=self._get_channel_status(3),
-                            logic_status=Ilm200StreamInterface._get_logic_status()
-                        )
+        status_string = (
+            "X{ch1_type:01d}{ch2_type:01d}{ch3_type:01d}S{ch1_status:02x}{ch2_status:02x}"
+            "{ch3_status:02x}R{logic_status:02d}".format(
+                ch1_type=d.get_cryo_type(1),
+                ch2_type=d.get_cryo_type(2),
+                ch3_type=d.get_cryo_type(3),
+                ch1_status=self._get_channel_status(1),
+                ch2_status=self._get_channel_status(2),
+                ch3_status=self._get_channel_status(3),
+                logic_status=Ilm200StreamInterface._get_logic_status(),
+            )
+        )
         self.log.info("STATUS: " + status_string)
         return status_string

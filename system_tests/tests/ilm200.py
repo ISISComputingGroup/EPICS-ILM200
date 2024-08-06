@@ -35,6 +35,7 @@ class Ilm200ChannelTypes:
     """
     Channel types on an ILM200. Must match the definitions in the emulator.
     """
+
     NOT_IN_USE = 0
     NITROGEN = 1
     HELIUM = 2
@@ -45,6 +46,7 @@ class Ilm200Tests(unittest.TestCase):
     """
     Tests for the Ilm200 IOC.
     """
+
     DEFAULT_SCAN_RATE = 1
     SLOW = "Slow"
     FAST = "Fast"
@@ -80,9 +82,13 @@ class Ilm200Tests(unittest.TestCase):
         self.ca.assert_that_pv_exists("VERSION", timeout=30)
         self._lewis.backdoor_set_on_device("cycle", False)
 
-        self._lewis.backdoor_run_function_on_device("set_cryo_type", (1, Ilm200ChannelTypes.NITROGEN))
+        self._lewis.backdoor_run_function_on_device(
+            "set_cryo_type", (1, Ilm200ChannelTypes.NITROGEN)
+        )
         self._lewis.backdoor_run_function_on_device("set_cryo_type", (2, Ilm200ChannelTypes.HELIUM))
-        self._lewis.backdoor_run_function_on_device("set_cryo_type", (3, Ilm200ChannelTypes.HELIUM_CONT))
+        self._lewis.backdoor_run_function_on_device(
+            "set_cryo_type", (3, Ilm200ChannelTypes.HELIUM_CONT)
+        )
 
     def set_level_via_backdoor(self, channel, level):
         self._lewis.backdoor_command(["device", "set_level", str(channel), str(level)])
@@ -91,8 +97,12 @@ class Ilm200Tests(unittest.TestCase):
         self._lewis.backdoor_command(["device", "set_helium_current", str(channel), str(is_on)])
 
     def check_state(self, channel, level, is_filling, is_low):
-        self.ca.assert_that_pv_is_number(self.ch_pv(channel, self.LEVEL), level, self.LEVEL_TOLERANCE)
-        self.ca.assert_that_pv_is(self.ch_pv(channel, "FILLING"), "Filling" if is_filling else "Not filling")
+        self.ca.assert_that_pv_is_number(
+            self.ch_pv(channel, self.LEVEL), level, self.LEVEL_TOLERANCE
+        )
+        self.ca.assert_that_pv_is(
+            self.ch_pv(channel, "FILLING"), "Filling" if is_filling else "Not filling"
+        )
         self.ca.assert_that_pv_is(self.ch_pv(channel, "LOW"), "Low" if is_low else "Not low")
 
     def test_GIVEN_ilm200_THEN_has_version(self):
@@ -123,18 +133,24 @@ class Ilm200Tests(unittest.TestCase):
     @skip_if_recsim("Cannot do back door of dynamic behaviour in recsim")
     def test_GIVEN_ilm_200_WHEN_level_set_on_device_THEN_reported_level_matches_set_level(self):
         for i in self.channel_range():
-            expected_level = i*12.3
+            expected_level = i * 12.3
             self.set_level_via_backdoor(i, expected_level)
-            self.ca.assert_that_pv_is_number(self.ch_pv(i, self.LEVEL), expected_level, self.LEVEL_TOLERANCE)
+            self.ca.assert_that_pv_is_number(
+                self.ch_pv(i, self.LEVEL), expected_level, self.LEVEL_TOLERANCE
+            )
 
     @skip_if_recsim("No dynamic behaviour recsim")
     def test_GIVEN_ilm_200_WHEN_is_cycling_THEN_channel_levels_change_over_time(self):
         self._lewis.backdoor_set_on_device("cycle", True)
         for i in self.channel_range():
+
             def not_equal(a, b):
                 tolerance = self.LEVEL_TOLERANCE
-                return abs(a-b)/(a+b+tolerance) > tolerance
-            self.ca.assert_that_pv_value_over_time_satisfies_comparator(self.ch_pv(i, self.LEVEL), 2 * Ilm200Tests.DEFAULT_SCAN_RATE, not_equal)
+                return abs(a - b) / (a + b + tolerance) > tolerance
+
+            self.ca.assert_that_pv_value_over_time_satisfies_comparator(
+                self.ch_pv(i, self.LEVEL), 2 * Ilm200Tests.DEFAULT_SCAN_RATE, not_equal
+            )
 
     def test_GIVEN_ilm200_channel_WHEN_rate_change_requested_THEN_rate_changed(self):
         for i in self.channel_range():
@@ -146,8 +162,9 @@ class Ilm200Tests(unittest.TestCase):
 
     def test_GIVEN_ilm200_channel_WHEN_rate_set_to_current_value_THEN_rate_unchanged(self):
         for i in self.channel_range():
-            self.ca.assert_setting_setpoint_sets_readback(self.ca.get_pv_value(self.ch_pv(i, self.RATE)),
-                                                          self.ch_pv(i, self.RATE))
+            self.ca.assert_setting_setpoint_sets_readback(
+                self.ca.get_pv_value(self.ch_pv(i, self.RATE)), self.ch_pv(i, self.RATE)
+            )
 
     @skip_if_recsim("Cannot do back door of dynamic behaviour in recsim")
     def test_GIVEN_ilm200_WHEN_channel_full_THEN_not_filling_and_not_low(self):
@@ -157,23 +174,25 @@ class Ilm200Tests(unittest.TestCase):
             self.check_state(i, level, False, False)
 
     @skip_if_recsim("Cannot do back door of dynamic behaviour in recsim")
-    def test_GIVEN_ilm200_WHEN_channel_low_but_auto_fill_not_triggered_THEN_not_filling_and_low(self):
+    def test_GIVEN_ilm200_WHEN_channel_low_but_auto_fill_not_triggered_THEN_not_filling_and_low(
+        self,
+    ):
         for i in self.channel_range():
-            level = self.LOW - (self.LOW - self.FILL)/2  # Somewhere between fill and low
+            level = self.LOW - (self.LOW - self.FILL) / 2  # Somewhere between fill and low
             self.set_level_via_backdoor(i, level)
             self.check_state(i, level, False, True)
 
     @skip_if_recsim("Cannot do back door of dynamic behaviour in recsim")
     def test_GIVEN_ilm200_WHEN_channel_low_but_and_auto_fill_triggered_THEN_filling_and_low(self):
         for i in self.channel_range():
-            level = self.FILL/2
+            level = self.FILL / 2
             self.set_level_via_backdoor(i, level)
             self.check_state(i, level, True, True)
 
     @skip_if_recsim("Cannot do back door of dynamic behaviour in recsim")
     def test_GIVEN_ilm200_WHEN_channel_low_THEN_alarm(self):
         for i in self.channel_range():
-            level = self.FILL/2
+            level = self.FILL / 2
             self.set_level_via_backdoor(i, level)
             self.ca.assert_that_pv_alarm_is(self.ch_pv(i, "LOW"), self.ca.Alarms.MINOR)
 
@@ -190,8 +209,12 @@ class Ilm200Tests(unittest.TestCase):
             self.ca.assert_that_pv_is(self.ch_pv(i, self.CURRENT), "Off")
 
     @skip_if_recsim("cannot do back door in recsim")
-    def test_GIVEN_not_in_use_channel_THEN_being_in_neither_fast_nor_slow_mode_does_not_cause_alarm(self):
-        self._lewis.backdoor_run_function_on_device("set_cryo_type", (1, Ilm200ChannelTypes.NOT_IN_USE))
+    def test_GIVEN_not_in_use_channel_THEN_being_in_neither_fast_nor_slow_mode_does_not_cause_alarm(
+        self,
+    ):
+        self._lewis.backdoor_run_function_on_device(
+            "set_cryo_type", (1, Ilm200ChannelTypes.NOT_IN_USE)
+        )
 
         # Assert in neither fast nor slow mode
         self.ca.assert_that_pv_is(self.ch_pv(1, "STAT:RAW.B1"), "0")
